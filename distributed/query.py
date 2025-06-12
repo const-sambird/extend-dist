@@ -38,3 +38,9 @@ class Query:
         other_candidates = other.derived_candidate_indexes()
 
         return len(this_candidates & other_candidates) / len(this_candidates | other_candidates)
+
+    def __eq__(self, other):
+        if not isinstance(other, Query):
+            return False
+        
+        return self.text == other.text

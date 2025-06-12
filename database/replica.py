@@ -20,3 +20,13 @@ class Replica:
     
     def create_extend_algorithm(self, config = None):
         self.algorithm = ExtendAlgorithm(self.conn, config)
+    
+    def reset(self):
+        self.conn.drop_indexes()
+        self.conn.exec_fetch('SELECT hypopg_reset();')
+    
+    def set_index_configuration(self, indexes):
+        self.reset()
+
+        for index in indexes:
+            self.conn.simulate_index(index)
