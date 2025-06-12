@@ -6,13 +6,18 @@ from database.replica import Replica
 from extend.index import Index
 
 class Tuner:
-    def __init__(self, queries: list[Query], replicas: list[Replica]):
+    def __init__(self, queries: list[Query], replicas: list[Replica], budget: int, max_index_width: int):
         self.queries = queries
         self.replicas = replicas
         self.n_queries = len(queries)
         self.n_replicas = len(replicas)
+        
+        self.extend_configuration = {
+            'budget_MB': budget,
+            'max_index_width': max_index_width
+        }
     
-    def run(self, threshold):
+    def run(self, threshold: float) -> tuple[list[list[Index]], list[int]]:
         '''
         Run Hang's algorithm (using Extend).
 
@@ -272,7 +277,7 @@ class Tuner:
     def recommend_configuration(self, replica: Replica, workload: list[Query]):
         # we need to recreate this every time, unfortunately
         replica.reset()
-        replica.create_extend_algorithm()
+        replica.create_extend_algorithm(self.extend_configuration)
         
         return replica.algorithm.calculate_best_indexes(workload)
     
