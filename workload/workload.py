@@ -21,11 +21,13 @@ class Query:
         '''
         Computes the Jaccard similarity of the two queries
         by the sets of candidate indexes that they generate.
+
+        Subtract from 1 because we use this as a difference function.
         '''
         this_candidates = set(self.columns)
         other_candidates = set(other.columns)
 
-        return (2**len(this_candidates & other_candidates)) / (2**len(this_candidates | other_candidates))
+        return 1 - (len(this_candidates & other_candidates) / len(this_candidates | other_candidates))
 
 
 class Workload:

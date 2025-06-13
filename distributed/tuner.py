@@ -101,6 +101,8 @@ class Tuner:
         curr_cost = self.compute_total_cost(self.replicas, curr_partitions)
 
         while True:
+            for idx, replica in enumerate(self.replicas):
+                replica.set_index_configuration(curr_configs[idx])
             best_fit_partitions = self.best_fit_partition()
             replica_costs = [
                 self.compute_replica_cost(self.replicas[i], curr_partitions[i])
@@ -110,7 +112,7 @@ class Tuner:
             candidates = list(curr_partitions[worst_replica])
             candidates.extend(x for x in best_fit_partitions[worst_replica] if x not in candidates)
             workload_costs = self.compute_costs_by_query(self.replicas[worst_replica], candidates)
-            worst_query = candidates[np.argmin(workload_costs)]
+            worst_query = candidates[np.argmax(workload_costs)]
             logging.debug(f'the worst replica is {worst_replica}, containing {curr_partitions[worst_replica]}, and the worst query is {worst_query}')
 
             dest_replicas = []
@@ -290,7 +292,7 @@ class Tuner:
         clusters = [[] for _ in range(n_clusters)]
 
         for query, assignment in enumerate(assignments):
-            clusters[assignment].append(queries[query])
+            clusters[assignment - 1].append(queries[query])
 
         return clusters
 
@@ -299,7 +301,10 @@ class Tuner:
         replica.reset()
         replica.create_extend_algorithm(self.extend_configuration)
         
-        return replica.algorithm.calculate_best_indexes(Workload(workload))
+        config = replica.algorithm.calculate_best_indexes(Workload(workload))
+        replica.set_index_configuration(config)
+        
+        return config
     
     def get_baseline_costs(self) -> list[float]:
         '''
