@@ -141,22 +141,22 @@ class Tuner:
             logging.debug(f'moving or duplicating {worst_query} to {dest_replica}')
             
             # consider MOVE and DUPLICATE operations
-            move_partitions = deepcopy(curr_partitions)
+            move_partitions = [p[:] for p in curr_partitions]
             move_partitions[worst_replica].remove(worst_query)
             move_partitions[dest_replica].append(worst_query)
             move_config = [
                 self.recommend_configuration(self.replicas[i_rep], move_partitions[i_rep])
                 for i_rep in range(self.n_replicas)
             ]
-            move_cost = self.compute_total_cost(self.replicas, move_config)
+            move_cost = self.compute_total_cost(self.replicas, move_partitions)
 
-            duplicate_partitions = deepcopy(curr_partitions)
+            duplicate_partitions = [p[:] for p in curr_partitions]
             duplicate_partitions[dest_replica].append(worst_query)
             duplicate_config = [
                 self.recommend_configuration(self.replicas[i_rep], duplicate_partitions[i_rep])
                 for i_rep in range(self.n_replicas)
             ]
-            duplicate_cost = self.compute_total_cost(self.replicas, duplicate_config)
+            duplicate_cost = self.compute_total_cost(self.replicas, duplicate_partitions)
 
             logging.debug(f'current cost {curr_cost}, move cost {move_cost}, duplicate cost {duplicate_cost}')
 
