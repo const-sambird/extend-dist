@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 from copy import deepcopy
 from scipy.cluster.hierarchy import fclusterdata
@@ -46,6 +47,7 @@ class Tuner:
         :returns config: the list of index configurations for each replica
         :returns routes: the initial routing table generated
         '''
+        logging.info('Starting cluster-and-tune (step 1)')
         partitions = self.cluster(self.queries, self.n_replicas)
         configs = [self.recommend_configuration(self.replicas[i_rep], partitions[i_rep]) for i_rep in range(self.n_replicas)]
         best_cost = sum([self.compute_replica_cost(self.replicas[i_rep], partitions[i_rep]) for i_rep in range(self.n_replicas)])
@@ -60,11 +62,16 @@ class Tuner:
             next_cost = sum([self.compute_replica_cost(self.replicas[i_rep], next_partitions[i_rep]) for i_rep in range(self.n_replicas)])
             partitions = next_partitions
 
+            logging.debug(f'the next cost is {next_cost}, and the current best cost is {best_cost}')
+
             if next_cost < best_cost:
                 configs = next_configs
                 best_cost = next_cost
             else:
                 break
+        
+        logging.debug('derived the following partitions:')
+        logging.debug(partitions)
         
         return configs, partitions
             
@@ -80,7 +87,11 @@ class Tuner:
         :returns configs: the refined index configurations
         :returns partitions: the refined partitions
         '''
+        logging.info('Starting balance-aware tuning refinement (step 2)')
         baseline = self.get_baseline_costs()
+
+        logging.debug('the baseline query costs are:')
+        logging.debug(baseline)
 
         for idx, replica in enumerate(self.replicas):
             replica.set_index_configuration(configs[idx])
@@ -92,7 +103,7 @@ class Tuner:
         while True:
             best_fit_partitions = self.best_fit_partition()
             replica_costs = [
-                self.compute_replica_cost(self.replicas[i], partitions[i])
+                self.compute_replica_cost(self.replicas[i], curr_partitions[i])
                 for i in range(self.n_replicas)
             ]
             worst_replica = np.argmax(replica_costs)
@@ -100,6 +111,7 @@ class Tuner:
             candidates.extend(x for x in best_fit_partitions[worst_replica] if x not in candidates)
             workload_costs = self.compute_costs_by_query(self.replicas[worst_replica], candidates)
             worst_query = candidates[np.argmin(workload_costs)]
+            logging.debug(f'the worst replica is {worst_replica}, containing {curr_partitions[worst_replica]}, and the worst query is {worst_query}')
 
             dest_replicas = []
             query_costs = self.compute_costs_by_replica(worst_query, self.replicas)
@@ -126,6 +138,8 @@ class Tuner:
                         dest_replica = candidate
                         min_cost = query_costs[candidate]
             
+            logging.debug(f'moving or duplicating {worst_query} to {dest_replica}')
+            
             # consider MOVE and DUPLICATE operations
             move_partitions = deepcopy(curr_partitions)
             move_partitions[worst_replica].remove(worst_query)
@@ -143,6 +157,8 @@ class Tuner:
                 for i_rep in range(self.n_replicas)
             ]
             duplicate_cost = self.compute_total_cost(self.replicas, duplicate_config)
+
+            logging.debug(f'current cost {curr_cost}, move cost {move_cost}, duplicate cost {duplicate_cost}')
 
             if move_cost < duplicate_cost:
                 new_partitions = move_partitions
@@ -173,6 +189,8 @@ class Tuner:
         :param threshold: tuning parameter - roughly 'how much load skew can we tolerate?' in a range between 0 and 1
         :returns routes: which database replica to route each query to
         '''
+        logging.info('Starting benefit-first load-aware routing (step 3)')
+
         baseline_costs = self.get_baseline_costs()
         routes = [-1 for _ in range(self.n_queries)]
 
@@ -210,6 +228,8 @@ class Tuner:
                 if (loads[i_replica] / loads[order[0]]) < threshold:
                     route_to = i_replica
         
+        logging.debug(f'routing {query} to {route_to}')
+
         return route_to
 
     def compute_replica_cost(self, replica: Replica, workload: list[Query]) -> float:
