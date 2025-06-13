@@ -1,7 +1,7 @@
 import numpy as np
 from copy import deepcopy
 from scipy.cluster.hierarchy import fclusterdata
-from workload.workload import Query
+from workload.workload import Query, Workload
 from database.replica import Replica
 from extend.index import Index
 
@@ -263,9 +263,9 @@ class Tuner:
         def metric(x, y):
             # something of a kludge. we need a custom (jaccard) metric
             # function anyway, but we're actually passing indices to scipy
-            return queries[x].similarity(queries[y])
+            return queries[int(x[0])].similarity(queries[int(y[0])])
         
-        X = [i for i in range(self.n_queries)]
+        X = np.array([i for i in range(self.n_queries)], dtype=np.int32).reshape(-1, 1)
         assignments = fclusterdata(X, n_clusters, criterion='maxclust', metric=metric)
         clusters = [[] for _ in range(n_clusters)]
 
@@ -279,7 +279,7 @@ class Tuner:
         replica.reset()
         replica.create_extend_algorithm(self.extend_configuration)
         
-        return replica.algorithm.calculate_best_indexes(workload)
+        return replica.algorithm.calculate_best_indexes(Workload(workload))
     
     def get_baseline_costs(self) -> list[float]:
         '''

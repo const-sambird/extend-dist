@@ -6,10 +6,11 @@ from database.postgres import PostgresDatabaseConnector
 
 
 class WorkloadParser:
-    def __init__(self, database_system, database_name, benchmark_name):
+    def __init__(self, database_system, database_name, benchmark_name, connection_string):
         self.database_system = database_system
         self.database_name = database_name
         self.benchmark_name = benchmark_name
+        self.connection_string = connection_string
 
     @staticmethod
     def is_custom_workload(benchmark_name):
@@ -21,7 +22,7 @@ class WorkloadParser:
 
     def get_tables(self):
         assert self.database_system == "postgres"
-        db_connector = PostgresDatabaseConnector(self.database_name)
+        db_connector = PostgresDatabaseConnector(self.database_name, self.connection_string)
         result = db_connector.exec_fetchall(
             "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';"
         )

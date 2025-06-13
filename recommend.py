@@ -45,7 +45,7 @@ if __name__ == '__main__':
         logging.getLogger().setLevel(logging.INFO)
 
     replicas = get_replicas(args.replicas)
-    parser = WorkloadParser('postgres', replicas[0].dbname, 'tpch')
+    parser = WorkloadParser('postgres', replicas[0].dbname, 'tpch', replicas[0].connection_string())
     workload = parser.execute()
     for query in workload.queries:
         query.text = replicas[0].conn.update_query_text(query.text)

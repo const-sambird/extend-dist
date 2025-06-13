@@ -139,6 +139,9 @@ class PostgresDatabaseConnector(DatabaseConnector):
         index.estimated_size = size * 8 * 1024
 
     def drop_indexes(self):
+        # we shouldn't be creating real ones, anyway
+        # and it keeps trying to drop the primary key constraints
+        return
         logging.info("Dropping indexes")
         stmt = "select indexname from pg_indexes where schemaname='public'"
         indexes = self.exec_fetch(stmt, one=False)

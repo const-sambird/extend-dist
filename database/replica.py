@@ -22,7 +22,6 @@ class Replica:
         self.algorithm = ExtendAlgorithm(self.conn, config)
     
     def reset(self):
-        self.conn.drop_indexes()
         self.conn.exec_fetch('SELECT hypopg_reset();')
     
     def set_index_configuration(self, indexes):
