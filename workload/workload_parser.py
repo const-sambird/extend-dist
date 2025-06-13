@@ -69,9 +69,11 @@ class WorkloadParser:
         for file_name in query_files:
             with open(file_name) as f:
                 query_text = f.read()
-                query_id = file_name.split("/")[-1]
+                query_id = int(file_name.split("/")[-1].split(".sql")[0])
                 query = Query(query_id, query_text)
                 self.store_indexable_columns(query, tables)
                 queries.append(query)
+
+        queries.sort(key=lambda x: x.nr)
 
         return Workload(queries)

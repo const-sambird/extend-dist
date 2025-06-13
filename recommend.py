@@ -55,7 +55,9 @@ if __name__ == '__main__':
 
     print('=' * 20)
     print('INDEX CONFIGURATION\n')
-    print(config)
+    for i, rep in enumerate(config):
+        print(f'Replica {i}')
+        print('\n'.join([idx.joined_column_names() for idx in rep]))
     print('\nROUTING TABLE')
-    print(','.join(routes))
+    print(','.join(map(str, routes)))
     print('=' * 20)
