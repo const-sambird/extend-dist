@@ -219,7 +219,7 @@ class Tuner:
         costs = []
 
         for query in workload:
-            costs.append(replica.conn.get_cost(query.text))
+            costs.append(replica.conn.get_cost(query))
         
         return costs
     
@@ -227,7 +227,7 @@ class Tuner:
         costs = []
 
         for replica in replicas:
-            costs.append(replica.conn.get_cost(query.text))
+            costs.append(replica.conn.get_cost(query))
         
         return costs
     
@@ -251,7 +251,7 @@ class Tuner:
 
         for query in self.queries:
             this_costs = [
-                replica.conn.get_cost(query.text)
+                replica.conn.get_cost(query)
                 for replica in self.replicas
             ]
             best_fit = np.argmin(this_costs)
@@ -296,6 +296,6 @@ class Tuner:
         costs = []
 
         for query in self.queries:
-            costs.append(replica.conn.get_cost(query.text))
+            costs.append(replica.conn.get_cost(query))
         
         return costs
