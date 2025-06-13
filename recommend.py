@@ -3,8 +3,8 @@ import logging
 
 from common.util import b_to_mb
 from database.replica import Replica
-from distributed.query import Query
 from distributed.tuner import Tuner
+from workload.workload_parser import WorkloadParser
 
 def get_replicas(path = './replicas.csv') -> list[Replica]:
     replicas = []
@@ -23,36 +23,6 @@ def get_replicas(path = './replicas.csv') -> list[Replica]:
                 )
             )
     return replicas
-
-def get_columns(replica: Replica) -> list[str]:
-    '''
-    To ensure we are extracting the column names from the queries
-    properly (to generate the index candidates), we need to get
-    a list of the actual column names for the regexp to test for.
-
-    :param replica: which database replica's connection should we use to do this?
-    :returns columns: a list of the column names
-    '''
-    conn = replica.conn
-    tables = conn.exec_fetchall('SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\';')
-    tables = [name[0] for name in tables]
-
-    columns = []
-    QUERY_TEMPLATE = 'SELECT * FROM %s LIMIT 0;'
-
-    for table in tables:
-        conn.exec_only(QUERY_TEMPLATE % table)
-        for desc in conn._cursor.description:
-            columns.append(desc[0])
-    
-    return columns
-
-def get_queries(path, columns: list[str]) -> list[Query]:
-    queries = []
-    with open(path, 'r') as infile:
-        lines = infile.readlines()
-        for line in lines:
-            queries.append(Query(line, columns))
 
 def get_arguments():
     parser = argparse.ArgumentParser()
@@ -75,9 +45,11 @@ if __name__ == '__main__':
         logging.getLogger().setLevel(logging.INFO)
 
     replicas = get_replicas(args.replicas)
-    columns = get_columns(replicas[0])
-    queries = get_queries(args.queries, columns)
-    tuner = Tuner(queries, replicas, b_to_mb(args.space_budget), args.max_index_width)
+    parser = WorkloadParser('postgres', replicas[0].dbname, 'tpch')
+    workload = parser.execute()
+    for query in workload.queries:
+        query.text = replicas[0].conn.update_query_text(query.text)
+    tuner = Tuner(workload.queries, replicas, b_to_mb(args.space_budget), args.max_index_width)
 
     config, routes = tuner.run(args.tuning_parameter)
 

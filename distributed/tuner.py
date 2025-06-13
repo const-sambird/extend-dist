@@ -1,7 +1,7 @@
 import numpy as np
 from copy import deepcopy
 from scipy.cluster.hierarchy import fclusterdata
-from distributed.query import Query
+from workload.workload import Query
 from database.replica import Replica
 from extend.index import Index
 
