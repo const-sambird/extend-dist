@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 from copy import deepcopy
-from scipy.cluster.hierarchy import fclusterdata
+from sklearn.cluster import AgglomerativeClustering
 from workload.workload import Query, Workload
 from database.replica import Replica
 from extend.index import Index
@@ -283,12 +283,17 @@ class Tuner:
 
     def cluster(self, queries: list[Query], n_clusters: int) -> list[list[Query]]:
         def metric(x, y):
-            # something of a kludge. we need a custom (jaccard) metric
-            # function anyway, but we're actually passing indices to scipy
-            return queries[int(x[0])].similarity(queries[int(y[0])])
+            return queries[x].similarity(queries[y])
         
-        X = np.array([i for i in range(self.n_queries)], dtype=np.int32).reshape(-1, 1)
-        assignments = fclusterdata(X, n_clusters, criterion='maxclust', metric=metric)
+        n_queries = len(queries)
+        distance_matrix = np.zeros((n_queries, n_queries))
+
+        for i in range(n_queries):
+            for j in range(n_queries):
+                if i == j: continue
+                distance_matrix[i][j] = metric(i, j)
+        
+        assignments = AgglomerativeClustering(n_clusters=n_clusters, metric='precomputed', linkage='complete').fit(distance_matrix).labels_
         clusters = [[] for _ in range(n_clusters)]
 
         for query, assignment in enumerate(assignments):
@@ -303,7 +308,7 @@ class Tuner:
         
         config = replica.algorithm.calculate_best_indexes(Workload(workload))
         replica.set_index_configuration(config)
-        
+
         return config
     
     def get_baseline_costs(self) -> list[float]:
