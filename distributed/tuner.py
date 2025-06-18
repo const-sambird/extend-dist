@@ -110,7 +110,7 @@ class Tuner:
             ]
             worst_replica = np.argmax(replica_costs)
             candidates = list(curr_partitions[worst_replica])
-            candidates.extend(x for x in best_fit_partitions[worst_replica] if x not in candidates)
+            candidates = [query for query in candidates if query in best_fit_partitions[worst_replica]] # compute intersection
             workload_costs = self.compute_costs_by_query(self.replicas[worst_replica], candidates)
             worst_query = candidates[np.argmax(workload_costs)]
             logging.debug(f'the worst replica is {worst_replica}, containing {curr_partitions[worst_replica]}, and the worst query is {worst_query}')
