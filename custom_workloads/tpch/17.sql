@@ -1,1 +1,13 @@
-  select o_orderpriority, count(*) as order_count from orders where o_orderdate >= date '1993-03-01' and o_orderdate < date '1993-03-01' + interval '3' month and exists ( select * from lineitem where l_orderkey = o_orderkey and l_commitdate < l_receiptdate ) group by o_orderpriority order by o_orderpriority LIMIT 1; 
+select
+	sum(l_extendedprice) / 7.0 as avg_yearly
+from
+	lineitem,
+	part,
+	(SELECT l_partkey AS agg_partkey, 0.2 * avg(l_quantity) AS avg_quantity FROM lineitem GROUP BY l_partkey) part_agg
+where
+	p_partkey = l_partkey
+	and agg_partkey = l_partkey
+	and p_brand = 'Brand#51'
+	and p_container = 'SM JAR'
+	and l_quantity < avg_quantity
+LIMIT 1;
