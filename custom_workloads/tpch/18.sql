@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	c_name,
 	c_custkey,

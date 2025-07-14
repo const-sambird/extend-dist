@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	s_name,
 	s_address
@@ -18,8 +21,8 @@ where
 				from
 					lineitem
 				where
-					l_shipdate >= date '1994-01-01'
-					and l_shipdate < date '1994-01-01' + interval '1' year
+					l_shipdate >= date '1995-01-01'
+					and l_shipdate < date '1995-01-01' + interval '1' year
 				group by
 					l_partkey,
 					l_suppkey
@@ -33,12 +36,11 @@ where
 				from
 					part
 				where
-					p_name like 'midnight%'
+					p_name like 'snow%'
 			)
 			and ps_availqty > agg_quantity
 	)
 	and s_nationkey = n_nationkey
-	and n_name = 'IRAN'
+	and n_name = 'CHINA'
 order by
-	s_name
-LIMIT 1;
+	s_name;

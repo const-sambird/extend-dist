@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	cntrycode,
 	count(*) as numcust,
@@ -11,7 +14,7 @@ from
 			customer
 		where
 			substring(c_phone from 1 for 2) in
-				('30', '36', '21', '39', '41', '27', '23')
+				('28', '29', '25', '11', '27', '19', '14')
 			and c_acctbal > (
 				select
 					avg(c_acctbal)
@@ -20,7 +23,7 @@ from
 				where
 					c_acctbal > 0.00
 					and substring(c_phone from 1 for 2) in
-						('30', '36', '21', '39', '41', '27', '23')
+						('28', '29', '25', '11', '27', '19', '14')
 			)
 			and not exists (
 				select
@@ -34,5 +37,4 @@ from
 group by
 	cntrycode
 order by
-	cntrycode
-LIMIT 1;
+	cntrycode;

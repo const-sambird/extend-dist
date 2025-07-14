@@ -1,11 +1,14 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	o_orderpriority,
 	count(*) as order_count
 from
 	orders
 where
-	o_orderdate >= date '1997-07-01'
-	and o_orderdate < date '1997-07-01' + interval '3' month
+	o_orderdate >= date '1997-10-01'
+	and o_orderdate < date '1997-10-01' + interval '3' month
 	and exists (
 		select
 			*
@@ -18,5 +21,4 @@ where
 group by
 	o_orderpriority
 order by
-	o_orderpriority
-LIMIT 1;
+	o_orderpriority;

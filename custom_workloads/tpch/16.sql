@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	p_brand,
 	p_type,
@@ -8,9 +11,9 @@ from
 	part
 where
 	p_partkey = ps_partkey
-	and p_brand <> 'Brand#55'
-	and p_type not like 'STANDARD PLATED%'
-	and p_size in (5, 29, 14, 24, 34, 1, 39, 42)
+	and p_brand <> 'Brand#24'
+	and p_type not like 'STANDARD ANODIZED%'
+	and p_size in (36, 45, 29, 39, 4, 31, 40, 35)
 	and ps_suppkey not in (
 		select
 			s_suppkey
@@ -27,5 +30,4 @@ order by
 	supplier_cnt desc,
 	p_brand,
 	p_type,
-	p_size
-LIMIT 1;
+	p_size;

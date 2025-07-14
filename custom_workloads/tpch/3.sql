@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	l_orderkey,
 	sum(l_extendedprice * (1 - l_discount)) as revenue,
@@ -8,11 +11,11 @@ from
 	orders,
 	lineitem
 where
-	c_mktsegment = 'AUTOMOBILE'
+	c_mktsegment = 'BUILDING'
 	and c_custkey = o_custkey
 	and l_orderkey = o_orderkey
-	and o_orderdate < date '1995-03-29'
-	and l_shipdate > date '1995-03-29'
+	and o_orderdate < date '1995-03-31'
+	and l_shipdate > date '1995-03-31'
 group by
 	l_orderkey,
 	o_orderdate,

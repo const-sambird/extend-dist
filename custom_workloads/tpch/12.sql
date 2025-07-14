@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	l_shipmode,
 	sum(case
@@ -17,13 +20,12 @@ from
 	lineitem
 where
 	o_orderkey = l_orderkey
-	and l_shipmode in ('FOB', 'MAIL')
+	and l_shipmode in ('FOB', 'TRUCK')
 	and l_commitdate < l_receiptdate
 	and l_shipdate < l_commitdate
-	and l_receiptdate >= date '1993-01-01'
-	and l_receiptdate < date '1993-01-01' + interval '1' year
+	and l_receiptdate >= date '1996-01-01'
+	and l_receiptdate < date '1996-01-01' + interval '1' year
 group by
 	l_shipmode
 order by
-	l_shipmode
-LIMIT 1;
+	l_shipmode;

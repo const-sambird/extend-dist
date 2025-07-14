@@ -1,3 +1,6 @@
+-- using 1267818476 as a seed to the RNG
+
+
 select
 	sum(l_extendedprice) / 7.0 as avg_yearly
 from
@@ -7,7 +10,6 @@ from
 where
 	p_partkey = l_partkey
 	and agg_partkey = l_partkey
-	and p_brand = 'Brand#51'
-	and p_container = 'SM JAR'
-	and l_quantity < avg_quantity
-LIMIT 1;
+	and p_brand = 'Brand#41'
+	and p_container = 'JUMBO PACK'
+	and l_quantity < avg_quantity;
