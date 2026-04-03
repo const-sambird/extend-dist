@@ -28,7 +28,7 @@ def get_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-t', '--tuning-parameter', type=float, default=0.5, help='the tuning parameter for the workload-aware routing algorithm')
-    parser.add_argument('-b', '--space-budget', type=int, default=6e9, help='the space budget for each database replica')
+    parser.add_argument('-b', '--space-budget', type=int, default=5e9, help='the space budget for each database replica')
     parser.add_argument('-w', '--max-index-width', type=int, default=2, help='the maximum width of an index recommended by the Extend algorithm')
     parser.add_argument('-r', '--replicas', type=str, default='./replicas.csv', help='the path to the replicas csv file')
     parser.add_argument('-q', '--queries', type=str, default='./queries.txt', help='the path to the text file containing the query workload')
