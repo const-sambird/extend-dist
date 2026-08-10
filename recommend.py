@@ -33,6 +33,7 @@ def get_arguments():
     parser.add_argument('-r', '--replicas', type=str, default='./replicas.csv', help='the path to the replicas csv file')
     parser.add_argument('-q', '--queries', type=str, default='./queries.txt', help='the path to the text file containing the query workload')
     parser.add_argument('-v', '--verbose', action='store_true', help='enable more debug logging output')
+    parser.add_argument('-n', '--workload-name', type=str, default='tpch')
 
     return parser.parse_args()
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
         logging.getLogger().setLevel(logging.INFO)
 
     replicas = get_replicas(args.replicas)
-    parser = WorkloadParser('postgres', replicas[0].dbname, 'tpch', replicas[0].connection_string())
+    parser = WorkloadParser('postgres', replicas[0].dbname, args.workload_name, replicas[0].connection_string())
     workload = parser.execute()
     for query in workload.queries:
         query.text = replicas[0].conn.update_query_text(query.text)
