@@ -34,6 +34,7 @@ def get_arguments():
     parser.add_argument('-q', '--queries', type=str, default='./queries.txt', help='the path to the text file containing the query workload')
     parser.add_argument('-v', '--verbose', action='store_true', help='enable more debug logging output')
     parser.add_argument('-n', '--workload-name', type=str, default='tpch')
+    parser.add_argument('--log', type=str)
 
     return parser.parse_args()
 
@@ -62,3 +63,14 @@ if __name__ == '__main__':
     print('\nROUTING TABLE')
     print(','.join(map(str, routes)))
     print('=' * 20)
+
+    if args.log:
+        with open(args.log, 'w') as outfile:
+            idx_string = []
+            for i_r, rep in enumerate(config):
+                for index in rep:
+                    idx_string.append(f'{i_r},{index.joined_column_names()}')
+            outfile.write(' '.join(idx_string))
+            outfile.write('\n')
+            outfile.write(','.join([str(r) for r in routes]))
+            outfile.write('\n')
