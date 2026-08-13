@@ -1,2 +1,4 @@
 .venv/
 __pycache__/
+replicas.csv
+*.log

@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
     if args.log:
         with open(args.log, 'w') as outfile:
+            outfile.write('no-failures\n')
             idx_string = []
             for i_r, rep in enumerate(config):
                 for index in rep:
